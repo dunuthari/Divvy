@@ -1,6 +1,6 @@
 # Divvy User Flows
 
-Every user flow in the app: who does it, what they see, what can go wrong, and what the pig says.
+Every user flow in the app: who does it, what they see, what can go wrong, and what the capybara says.
 Built on the product rules in `design.md` section 8 and the screens in section 7.
 
 **Tags:** `[MVP]` ships in version 1. `[V1.1]` soon after. `[LATER]` parked.
@@ -55,14 +55,14 @@ Built on the product rules in `design.md` section 8 and the screens in section 7
 - Every write creates an **activity** entry with who, what, when, and old and new values.
 - Pending screens always say who is being waited on.
 - Offline: reads work from cache, writes queue and sync (flow 11.1).
-- The pig appears once per screen as host (see section 12).
+- The capybara appears once per screen as host (see section 12).
 
 ### 0.5 Flow index
 
 | # | Flow | Tag |
 |---|---|---|
 | 1 | First launch and sign-in | MVP |
-| 2 | First-run profile (name and pig) | MVP |
+| 2 | First-run profile (name and capy) | MVP |
 | 3 | Returning user, session, sign-out, delete account | MVP |
 | 4 | Home (groups list) | MVP |
 | 5 | Groups: create, open, settings, members, archive, delete, leave | MVP |
@@ -72,7 +72,7 @@ Built on the product rules in `design.md` section 8 and the screens in section 7
 | 9 | Balances and settling up | MVP |
 | 10 | Nudges, notifications and activity | MVP / V1.1 |
 | 11 | System flows: offline, errors, permissions, deep links | MVP |
-| 12 | Pig moments | MVP |
+| 12 | Capybara moments | MVP |
 | 13 | Screen inventory and navigation map | MVP |
 | 14 | Open decisions | n/a |
 
@@ -83,10 +83,10 @@ Built on the product rules in `design.md` section 8 and the screens in section 7
 **Actor:** anyone new. **Screen:** Welcome.
 
 ### 1.1 Happy path
-1. App opens to **Welcome**: pig host, bubble "Oink! Who got lunch today?", headline, **Continue with Google**, fine print "Friends without the app can follow along from a link."
+1. App opens to **Welcome**: capybara host, bubble "Chill. We'll split it.", headline, **Continue with Google**, fine print "Friends without the app can follow along from a link."
 2. Tap **Continue with Google**. The system Google sheet opens.
 3. Pick an account and approve.
-4. App creates the profile (name and photo from Google, a default pig).
+4. App creates the profile (name and photo from Google, a default capybara).
 5. New user goes to **First-run profile** (flow 2). Returning user goes straight to **Home** (flow 4).
 
 ### 1.2 Alternate and error paths
@@ -105,11 +105,11 @@ Built on the product rules in `design.md` section 8 and the screens in section 7
 
 ## 2. First-run profile `[MVP]`
 
-**Actor:** new user right after first sign-in. **Screens:** Pick your pig, optional name edit.
+**Actor:** new user right after first sign-in. **Screens:** Pick your capy, optional name edit.
 
 1. **Name:** prefilled from Google ("Amal"). Editable. Required, 1 to 30 characters.
-2. **Pick your pig:** large preview of the selected outfit on a lilac stage, a 5 × 2 grid of the ten head avatars, **Continue**. Tapping a head swaps the preview with a small pig bounce.
-3. **Skip** is available. Skipping keeps the default pig (Divvy, outfit 1). The user can change it later (flow 3.5).
+2. **Pick your capy:** large preview of the selected outfit on a lilac stage, a 5 × 2 grid of the ten head avatars, **Continue**. Tapping a head swaps the preview with a small bounce.
+3. **Skip** is available. Skipping keeps the default capybara (Divvy, outfit 1). The user can change it later (flow 3.5).
 4. Land on **Home** (empty state, 4.2) or continue the pending join link.
 
 Edge cases:
@@ -121,13 +121,13 @@ Edge cases:
 ## 3. Returning user, session, account `[MVP]`
 
 ### 3.1 Returning user
-1. App opens with a short splash (pig head on lilac).
+1. App opens with a short splash (capybara head on lilac).
 2. If the session is valid, go to **Home**. Cached data shows immediately, then syncs.
 3. If the session expired, show **Welcome** with the toast "Please sign in again." Any queued offline changes are kept and sent after sign-in (11.1).
 
 ### 3.2 Profile and settings
 Opened from the avatar on Home. A bottom sheet:
-- Name, pig outfit (opens 3.5), appearance (Auto, Light, Dark), notifications (opens 10.4), **Sign out**, **Delete account**, app version.
+- Name, capybara outfit (opens 3.5), appearance (Auto, Light, Dark), notifications (opens 10.4), **Sign out**, **Delete account**, app version.
 
 ### 3.3 Sign out
 1. Tap **Sign out** → confirm sheet "Sign out of Divvy? Your groups stay safe."
@@ -142,8 +142,8 @@ Opened from the avatar on Home. A bottom sheet:
 5. Account and Google link are deleted. Every person linked to this account becomes a **named person** (not removed). Personal data (email, photo) is erased.
 6. Return to Welcome with a toast "Account deleted."
 
-### 3.5 Change my pig or name
-Settings → Pick your pig (same screen as flow 2). Saving updates the avatar everywhere, live. Activity entries are not rewritten.
+### 3.5 Change my capy or name
+Settings → Pick your capy (same screen as flow 2). Saving updates the avatar everywhere, live. Activity entries are not rewritten.
 
 ---
 
@@ -158,7 +158,7 @@ Settings → Pick your pig (same screen as flow 2). Saving updates the avatar ev
 - Pull to refresh, though data is live anyway.
 
 ### 4.2 Empty state (no groups)
-- Pig 9 (Wide open) on a lilac tile, "No groups yet. Create one and add the people you split with." Primary button **New group**.
+- Capybara 8 (Wide open) on a lilac tile, "No groups yet. Create one and add the people you split with." Primary button **New group**.
 
 ### 4.3 Tab bar destinations
 | Tab | Screen |
@@ -183,7 +183,7 @@ Hidden from Home. Settings → **Archived groups** lists them, read only, with *
 2. **Name** (required, 1 to 40 characters). Optional icon choice (fork, car, home, bag, party) which also sets the tile colour.
 3. **Who's in?** The creator is already added. Type a name and tap **Add** (or Return) to add each person. Chips show added people, each with an × to remove.
 4. Tap **Create group**.
-5. Group opens on the Expenses tab with the empty state: pig 9, "No expenses yet. Add the first one." plus a **Share** nudge strip (6.1).
+5. Group opens on the Expenses tab with the empty state: capybara 8, "No expenses yet. Add the first one." plus a **Share** nudge strip (6.1).
 6. Activity entry: "Amal created the group."
 
 Rules and errors:
@@ -196,7 +196,7 @@ Rules and errors:
 Header: back, group name, face stack, share. Tabs: **Expenses**, **Balances**, **Activity**. Ink card at the top shows the most relevant debt for the viewer:
 - If someone owes the viewer: "Ravi owes you Rs 2,000" with a **Nudge** button.
 - If the viewer owes: "You owe Ravi Rs 2,000" with a **Pay** button (goes to record payment, 9.2).
-- If settled: "All settled" with the Baller pig.
+- If settled: "All settled" with the Sweet capybara.
 - If several debts exist: the largest is shown, with "+2 more" opening Balances.
 Bottom button: **Add expense** (hidden when the group is archived).
 
@@ -265,7 +265,7 @@ Sort by newest or amount. Filter by payer or person.
 ### 6.2 Join via link: friend already has Divvy
 1. Friend taps the link in WhatsApp. iOS opens Divvy via a universal link.
 2. If signed out, they sign in first (flow 1). The link is remembered.
-3. Join screen: pig host, "Amal invited you to **Lunch out**." Shows group name, face stack, and the people who haven't joined yet.
+3. Join screen: capybara host, "Amal invited you to **Lunch out**." Shows group name, face stack, and the people who haven't joined yet.
 4. **"Who are you?"** list of unclaimed named persons plus **"I'm someone new"**.
 5. Tap a name (for example "I'm Nimal") → confirm sheet → **Join**.
 6. The account links to that person. Past expenses involving Nimal now show as theirs. Land in the group.
@@ -282,14 +282,14 @@ Sort by newest or amount. Filter by payer or person.
 | Person is already linked to another account | Not shown in the list. |
 
 ### 6.4 Join via link: friend does not have Divvy
-1. Link opens a **web landing page** (divvy.app/j/…): group name, face stack, pig, **Get the app** (App Store) and **View balances** (opens the guest page, 7.1).
+1. Link opens a **web landing page** (divvy.app/j/…): group name, face stack, capybara, **Get the app** (App Store) and **View balances** (opens the guest page, 7.1).
 2. After install and first open, the app resumes the invite (deferred deep link). If that is unavailable, the app asks "Have an invite link? Paste it here." with a paste button.
 3. Continues as 6.2.
 
 ### 6.5 Link management (owner)
 - **Regenerate join link:** confirm "The old link will stop working." New link shown. People who already joined are unaffected.
 - **Disable join link** `[V1.1]`: stops new joins without making a new link.
-- Invalid or regenerated link opened by a friend → screen with the Waiting pig: "This link isn't working. Ask Amal for a new one." Button **Open Divvy**.
+- Invalid or regenerated link opened by a friend → screen with the Cool capybara: "This link isn't working. Ask Amal for a new one." Button **Open Divvy**.
 
 ### 6.6 Join requests `[LATER]`
 Owner approval before someone joins. Not in v1.
@@ -302,7 +302,7 @@ Owner approval before someone joins. Not in v1.
 1. Link opens in the browser (no install, no login) on a read-only page: group name, "Shared by Amal", people count and total spent.
 2. Sections: **Who owes what** (each person with owes or is owed), **To settle up** (suggested payments), **Expenses** (title, payer names, date, amount).
 3. Page updates live while open.
-4. Banner shows the Undercover pig and "View only. You can't change anything here."
+4. Banner shows the Chill capybara and "View only. You can't change anything here."
 5. **Join in the app** leads to the install or join flow (6.4).
 
 Not shown to guests: the activity log, payment pending status, member emails, and the join link.
@@ -310,7 +310,7 @@ Not shown to guests: the activity log, payment pending status, member emails, an
 ### 7.2 Guest edge cases
 | Situation | Behavior |
 |---|---|
-| Link regenerated | Page shows "This link was turned off." with the Waiting pig |
+| Link regenerated | Page shows "This link was turned off." with the Cool capybara |
 | Group archived | Page still works, labelled "Archived" |
 | Group deleted | "This group no longer exists." |
 | Very long list | First 50 expenses, then "Open the app to see all." |
@@ -342,7 +342,7 @@ Step by step (screen "New expense"):
 5. (Merged into step 3.)
 6. Optional fields (collapsed under "More"): **Date** (default today), **Note**, **Category icon** `[V1.1]`.
 7. **Save expense** enabled only when every check passes. When disabled, a one-line hint says why: "Paid amounts must add up to Rs 10,000".
-8. On save: toast "Expense added. Everyone sees it now." with Hype pig. Group shows the new expense at the top. Balances update live. Activity entry written. Other members get a notification (10.2).
+8. On save: toast "Expense added. Everyone sees it now." with Hype capybara. Group shows the new expense at the top. Balances update live. Activity entry written. Other members get a notification (10.2).
 
 **Cancel:** × or swipe down. If anything was typed, confirm "Discard this expense?" with **Keep editing** as the default.
 
@@ -432,13 +432,13 @@ Example: lunch Rs 10,000, You paid 4,000, three friends paid 2,000 each, five sh
 1. Payer taps **I paid [name]** on a suggested payment, or **Pay** on the ink card. (Payments happen outside the app: bank transfer or cash. Divvy only tracks them.)
 2. Sheet "Record a payment": payer and receiver, amount prefilled with the suggestion, editable. Partial amounts allowed, up to what is owed.
 3. Tap **Send for confirmation**.
-4. A **pending** payment is created. The payer sees "Waiting for Amal to confirm" with the Waiting pig. The receiver is notified.
+4. A **pending** payment is created. The payer sees "Waiting for Amal to confirm" with the Cool capybara. The receiver is notified.
 5. Suggested payments for that pair show "Payment recorded, waiting for confirmation" so it isn't recorded twice.
 
 Validation: amount greater than 0 and no more than the owed amount (Default: overpayment blocked).
 
 ### 9.3 Confirm or reject (the receiver)
-1. Receiver sees the pending card on Balances (and a notification): pig bubble "Ravi says he paid you Rs 2,000. Did it land?"
+1. Receiver sees the pending card on Balances (and a notification): capybara bubble "Ravi says he paid you Rs 2,000. Did it land?"
 2. **Yes, got it** → payment becomes **confirmed**. Balances update live. Activity: "Amal confirmed Ravi's payment of Rs 2,000." Toast "Confirmed. Balances updated." Payer is notified. If this settles everything, show the all-settled state (9.8).
 3. **Not yet** → payment is **rejected** and removed. Activity: "Amal marked Ravi's payment of Rs 2,000 as not received." Payer is notified with "Amal says this hasn't arrived yet."
 4. A pending payment left unanswered: reminder to the receiver after 2 days, then every 3 days (Default), maximum 3 reminders.
@@ -471,7 +471,7 @@ Owner confirmation shows as "Amal confirmed for Dilini".
 | Same pair has two pending payments | Allowed only if the first is resolved. A second is blocked with "You already have a payment waiting." |
 
 ### 9.8 All settled
-- When every balance is 0 and nothing is pending: the Group ink card turns to "All settled" with the Baller pig, balances tab shows a mint "All settled. Nobody owes anything."
+- When every balance is 0 and nothing is pending: the Group ink card turns to "All settled" with the Sweet capybara, balances tab shows a mint "All settled. Nobody owes anything."
 - Adding a new expense reopens it automatically.
 - For owners, a prompt appears: "All settled. Archive this group?" `[V1.1]`.
 
@@ -485,7 +485,7 @@ Each group is settled on its own in v1. Cross-group netting ("Ravi owes you Rs 2
 ### 10.1 Nudge a friend `[MVP]`
 **Where:** the ink card "Ravi owes you Rs 2,000" and the balance row.
 1. Creditor taps **Nudge Ravi**.
-2. Sheet previews the pig message: "Amal says: Rs 2,000 for Lunch out is still open. Settle up when you can." Editable single line (Default: not editable in v1, fixed friendly copy).
+2. Sheet previews the capybara message: "Amal says: Rs 2,000 for Lunch out is still open. Settle up when you can." Editable single line (Default: not editable in v1, fixed friendly copy).
 3. **Send**.
 4. If Ravi has the app and push enabled: he gets a push (10.2). If he does not have an account: the sheet instead offers **Share via WhatsApp / Messages** with a prefilled text and his view link.
 5. Rate limit: one nudge per person per group per 24 hours. Tapping earlier shows "You nudged Ravi 3 hours ago." with the next available time.
@@ -512,7 +512,7 @@ Rules: never notify the person who caused the event. Group by group so ten expen
 Bell icon on Home. List of recent notifications (same events), unread dot, tap to open the target, **Mark all read**. Works even if push is off.
 
 ### 10.4 Notification settings and permission
-- **First time:** after the first created or joined group, a friendly pre-permission sheet explains why, with the pig and **Turn on notifications** / **Not now**. Only **Turn on** triggers the iOS system dialog.
+- **First time:** after the first created or joined group, a friendly pre-permission sheet explains why, with the capybara and **Turn on notifications** / **Not now**. Only **Turn on** triggers the iOS system dialog.
 - If iOS permission is denied: settings row shows "Off in iOS Settings" with **Open Settings**.
 - Per group: Mute (silences pushes, keeps inbox).
 - Quiet hours `[V1.1]`.
@@ -528,7 +528,7 @@ Group → **Activity** tab. Timeline of: group created, person added, person joi
 1. Group → **Share** → **Share status**.
 2. Choose **Text** or **Image**:
    - Text: "Lunch out · Rs 10,000 spent\nRavi owes Amal Rs 2,000\nAll others settled\nSee live: divvy.app/v/x7Kq2m"
-   - Image: the pig card with the summary, ready for WhatsApp.
+   - Image: the capybara card with the summary, ready for WhatsApp.
 3. iOS share sheet opens. Nothing is sent by Divvy itself.
 4. The live link is the view link. If the view link is off, the text omits it.
 
@@ -548,11 +548,11 @@ Group → **Activity** tab. Timeline of: group created, person added, person joi
 ### 11.2 Errors and empty states
 | Situation | Screen |
 |---|---|
-| No groups | Wide open pig, "No groups yet" |
-| No expenses | Wide open pig, "No expenses yet" |
-| No activity | Chill pig, "Nothing yet. Activity shows up here." |
-| No notifications | Chill pig, "You're all caught up." |
-| Loading | Dance pig on first run only. Skeleton tiles afterwards. |
+| No groups | Wide open capybara, "No groups yet" |
+| No expenses | Wide open capybara, "No expenses yet" |
+| No activity | Chill capybara, "Nothing yet. Activity shows up here." |
+| No notifications | Chill capybara, "You're all caught up." |
+| Loading | Beats capybara on first run only. Skeleton tiles afterwards. |
 | Server error | Toast with **Retry**. Data stays visible. |
 | Group not found or access lost | "You no longer have access to this group." with **Back to Home** |
 
@@ -584,26 +584,26 @@ Export a group as PDF or spreadsheet.
 
 ---
 
-## 12. Pig moments
+## 12. Capybara moments
 
-| Moment | Pig | Line |
+| Moment | Capybara | Line |
 |---|---|---|
-| Welcome | 1 Divvy | "Oink! Who got lunch today?" |
-| Pick your pig | Each outfit previews | n/a |
-| Home hero (owed) | 6 Baller | n/a |
+| Welcome | 1 Divvy | "Chill. We'll split it." |
+| Pick your capy | Each outfit previews | n/a |
+| Home hero (owed) | 5 Baller | n/a |
 | Group, someone owes you | 4 Point | "Ravi still owes you Rs 2,000. Nudge him?" |
 | Expense added | 3 Hype | "Expense added. Everyone sees it now." |
-| Payment pending (payer side) | 10 Waiting | "Waiting for Amal to confirm." |
-| Payment pending (receiver side) | 10 Waiting | "Ravi says he paid you Rs 2,000. Did it land?" |
-| All settled | 6 Baller | "All settled. Nobody owes anything." |
-| Empty group or list | 9 Wide open | "No expenses yet." |
-| Guest page | 7 Undercover | "View only." |
-| Loading, first run | 8 Dance | n/a |
-| Link broken | 10 Waiting | "This link isn't working." |
+| Payment pending (payer side) | 9 Cool | "Waiting for Amal to confirm." |
+| Payment pending (receiver side) | 9 Cool | "Ravi says he paid you Rs 2,000. Did it land?" |
+| All settled | 10 Sweet | "All settled. Nobody owes anything." |
+| Empty group or list | 8 Wide open | "No expenses yet." |
+| Guest page | 2 Chill | "View only." |
+| Loading, first run | 7 Beats | n/a |
+| Link broken | 9 Cool | "This link isn't working." |
 | Quiet states | 2 Chill | n/a |
-| A friend who owes (list avatar) | 5 Slick | n/a |
+| A friend who owes (list avatar) | 6 Wave | n/a |
 
-One pig per screen as the host. Lines stay friendly, never shaming.
+One capybara per screen as the host. Lines stay friendly, never shaming.
 
 ---
 
@@ -611,7 +611,7 @@ One pig per screen as the host. Lines stay friendly, never shaming.
 
 ### 13.1 Screens
 1. Welcome
-2. First-run: name and Pick your pig
+2. First-run: name and Pick your capy
 3. Home
 4. Notifications inbox
 5. Profile and settings (sheet)
@@ -633,7 +633,7 @@ One pig per screen as the host. Lines stay friendly, never shaming.
 
 ```mermaid
 flowchart TD
-    W["Welcome"] -->|"Continue with Google"| FR["First-run: name and pig"]
+    W["Welcome"] -->|"Continue with Google"| FR["First-run: name and capy"]
     W -->|"Returning user"| H["Home"]
     FR --> H
     H --> NG["New group"]
