@@ -136,9 +136,6 @@ img{display:block}
 .mcol{width:78px;flex:none;text-align:right}
 .mrow .mini{width:78px}
 .chkbtn{display:grid;place-items:center;width:30px;height:44px;flex:none}
-.swatch{width:46px;height:46px;border-radius:50%;display:grid;place-items:center;color:var(--ink);box-shadow:inset 0 0 0 1px rgba(0,0,0,.08)}
-.swatch.lilac{background:var(--lilac)}.swatch.peach{background:var(--peach)}.swatch.sky{background:var(--sky)}.swatch.bubble{background:var(--bubble)}.swatch.mint{background:var(--mint)}
-.swatch.on{box-shadow:0 0 0 3px var(--bg),0 0 0 5px var(--ink)}
 .chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
 .chip{display:inline-flex;align-items:center;gap:6px;background:var(--surface);box-shadow:inset 0 0 0 1px var(--line);border-radius:999px;padding:4px 6px 4px 14px;font-weight:700}
 .chip button{width:26px;height:26px;border-radius:50%;display:grid;place-items:center;color:var(--muted)}
@@ -298,7 +295,7 @@ var ic = function(n, st){ return '<svg class="i" viewBox="0 0 24 24"' + (st ? ' 
 var GICONS = [['fork','peach'],['car','sky'],['home','mint'],['bag','bubble'],['party','lilac']];
 var GCOLORS = ['lilac','peach','sky','bubble','mint'];
 var tone = function(g){ return g.color || (GICONS[g.icon || 0] || GICONS[0])[1]; };
-function swatches(cur, act){ return GCOLORS.map(function(c){ return '<button class="swatch ' + c + (cur === c ? ' on' : '') + '" data-a="' + act + '" data-c="' + c + '" aria-label="Colour ' + c + '" aria-pressed="' + (cur === c) + '">' + (cur === c ? ic('check') : '') + '</button>'; }).join(''); }
+function pickColor(){ var use = {}; GCOLORS.forEach(function(c){ use[c] = 0; }); Object.keys(S.groups).forEach(function(id){ var c = tone(S.groups[id]); use[c] = (use[c] || 0) + 1; }); return GCOLORS.slice().sort(function(a, b){ return use[a] - use[b] || GCOLORS.indexOf(a) - GCOLORS.indexOf(b); })[0]; }
 var ls = {
   get:function(k){ try { return localStorage.getItem(k); } catch(e) { return null; } },
   set:function(k, v){ try { localStorage.setItem(k, v); } catch(e) {} }
@@ -411,7 +408,7 @@ function groupsScreen(){
   } else {
     h += '<div class="stack" style="display:grid;gap:12px">' + gids.map(function(gid){
       var g = S.groups[gid], ppl = activePeople(gid), gi = GICONS[g.icon || 0] || GICONS[0], mine = myPid(gid), live = liveExpenses(gid).length;
-      return '<button class="bento ' + tone(g) + '" style="text-align:left;display:block;width:100%" data-a="openGroup" data-id="' + gid + '"><div class="row"><span class="ico" style="background:var(--glass)">' + ic(gi[0]) + '</span>' +
+      return '<button class="bento ' + tone(g) + '" style="text-align:left;display:block;width:100%" data-a="openGroup" data-id="' + gid + '"><div class="row"><span class="ico" style="background:var(--glass)">' + ic('users') + '</span>' +
         '<div class="grow"><div style="font-weight:800;font-size:18px" class="ell">' + esc(g.name) + '</div><div class="small" style="opacity:.8">' + ppl.length + ' people · ' + live + ' expenses</div></div>' +
         '<div class="stack">' + ppl.slice(0, 3).map(function(p){ return av(gid, p, 28); }).join('') + '</div></div>' +
         '<div style="margin-top:12px">' + (mine ? tilePill(netOf(gid)) : '<span class="pill ink">Join this group</span>') + '</div></button>';
@@ -425,14 +422,11 @@ function newGroupScreen(){
   var n = S.ng;
   return '<div class="topbar"><button class="circle" data-a="back" aria-label="Back">' + ic('back') + '</button><h1>New group</h1><span style="width:46px"></span></div><div class="scroll">' +
     '<label class="field"><span>Group name</span><input class="input" id="ngName" data-in="ngname" value="' + esc(n.name) + '" placeholder="Lunch out, Ella trip, Flat bills" maxlength="40" autocomplete="off"></label>' +
-    '<div class="label" style="margin:20px 0 8px">Icon</div><div class="row" style="gap:8px" id="ngIcons">' + ngIcons() + '</div>' +
-    '<div class="label" style="margin:20px 0 8px">Colour</div><div class="row" style="gap:10px;flex-wrap:wrap" id="ngColors">' + swatches(S.ng.color || GICONS[n.icon][1], 'ngColor') + '</div>' +
     '<div class="label" style="margin:22px 0 4px">Who’s in?</div><div class="muted small" style="margin-bottom:8px">Add people by name. They don’t need the app yet, they can claim their name later.</div>' +
     '<div class="row"><input class="input grow" id="ngPerson" data-in="ngperson" placeholder="Add a name" maxlength="30" autocomplete="off"><button class="btn sm" data-a="ngAdd">Add</button></div>' +
     '<div class="chips" id="ngChips">' + ngChips() + '</div></div>' +
     '<div class="bottombar"><button class="btn block" id="ngCreate" data-a="ngCreate" ' + (n.name.trim() ? '' : 'disabled') + '>Create group</button></div>';
 }
-function ngIcons(){ return GICONS.map(function(g, i){ return '<button class="circle ' + (S.ng.icon === i ? 'ink' : '') + '" data-a="ngIcon" data-i="' + i + '" aria-label="Icon ' + g[0] + '">' + ic(g[0]) + '</button>'; }).join(''); }
 function ngChips(){ return '<span class="chip" style="padding-right:14px">' + avp(S.profile.pig, 26, 'c1') + 'You</span>' + S.ng.people.map(function(p, i){ return '<span class="chip">' + esc(p) + '<button data-a="ngRemove" data-i="' + i + '" aria-label="Remove ' + esc(p) + '">' + ic('x') + '</button></span>'; }).join(''); }
 
 function whoScreen(){
@@ -625,7 +619,7 @@ function sheetHTML(){
       '<button class="btn block" id="paySend" data-a="sendPay" ' + (ok ? '' : 'disabled') + '>Send for confirmation</button>';
   } else if (sh.type === 'gset'){
     var P = S.people[gid] || {}, bal = balOf(gid), owner = isOwner(gid);
-    b = '<h3>People and settings</h3>' + (owner ? '<label class="field"><span>Group name</span><input class="input" id="gName" data-in="gname" value="' + esc(g.name) + '" maxlength="40"></label><button class="btn sm soft" style="margin-top:10px" data-a="renameGroup">Save name</button><div class="label" style="margin:20px 0 8px">Colour</div><div class="row" style="gap:10px;flex-wrap:wrap">' + swatches(tone(g), 'setColor') + '</div>' : '') +
+    b = '<h3>People and settings</h3>' + (owner ? '<label class="field"><span>Group name</span><input class="input" id="gName" data-in="gname" value="' + esc(g.name) + '" maxlength="40"></label><button class="btn sm soft" style="margin-top:10px" data-a="renameGroup">Save name</button>' : '') +
       '<div class="label" style="margin:20px 0 6px">People</div><div class="card" style="padding:4px 16px">' + activePeople(gid).map(function(m){
         var can = owner && m !== me && Math.round(bal[m] || 0) === 0;
         return '<div class="row" style="padding:8px 0">' + av(gid, m, 38) + '<div class="grow"><b>' + esc(P[m].name) + '</b><div class="small muted">' + (g.ownerPid === m ? 'Owner' : P[m].uid ? 'Joined' : 'Named, no account') + '</div></div>' + (can ? '<button class="btn xs warn" data-a="removePerson" data-id="' + m + '">' + ic('trash', 'width:16px;height:16px') + 'Remove</button>' : (owner && m !== me ? '<span class="small muted num">' + signed(bal[m] || 0) + '</span>' : '')) + '</div>'; }).join('') + '</div>' +
@@ -665,7 +659,7 @@ function nextPig(gid){ var used = {}; var P = S.people[gid] || {}; Object.keys(P
 function rcode(){ return Math.random().toString(36).slice(2, 8); }
 async function createGroup(name, icon, names, pigs, color){
   var gref = col('groups').doc(), gid = gref.id, ts = Date.now();
-  var gdoc = {name:name, icon:icon, ownerUid:S.uid, ownerPid:null, joinCode:rcode(), token:rcode(), ts:ts}; if (color) gdoc.color = color;
+  var gdoc = {name:name, icon:icon, color:color || pickColor(), ownerUid:S.uid, ownerPid:null, joinCode:rcode(), token:rcode(), ts:ts};
   await gref.set(gdoc);
   var mref = await gcol(gid, 'people').add({name:S.profile.name, pig:S.profile.pig, uid:S.uid, ts:ts});
   await gref.update({ownerPid:mref.id});
@@ -717,15 +711,13 @@ var A = {
   openGroup:function(el){ S.gid = el.dataset.id; S.tab = 'expenses'; go('group'); },
   back:function(){ if (S.screen === 'guest') { go('group'); } else if (S.screen === 'group' && !myPid(S.gid)) go('groups'); else if (S.screen === 'group' || S.screen === 'newgroup') { S.gid = S.screen === 'group' ? null : S.gid; go('groups'); } else go('group'); },
   tab:function(el){ S.tab = el.dataset.t; render(true); },
-  newgroup:function(){ S.ng = {name:'', icon:0, color:null, people:[]}; go('newgroup'); },
-  ngIcon:function(el){ S.ng.icon = +el.dataset.i; $('#ngIcons').innerHTML = ngIcons(); $('#ngColors').innerHTML = swatches(S.ng.color || GICONS[S.ng.icon][1], 'ngColor'); },
-  ngColor:function(el){ S.ng.color = el.dataset.c; $('#ngColors').innerHTML = swatches(S.ng.color, 'ngColor'); },
+  newgroup:function(){ S.ng = {name:'', people:[]}; go('newgroup'); },
   ngAdd:function(){ var i = $('#ngPerson'), v = i.value.trim(); if (!v) return; S.ng.people.push(v); i.value = ''; $('#ngChips').innerHTML = ngChips(); i.focus(); },
   ngRemove:function(el){ S.ng.people.splice(+el.dataset.i, 1); $('#ngChips').innerHTML = ngChips(); },
   ngCreate:async function(){
     if (!needWrite()) return; var i = $('#ngPerson'); if (i && i.value.trim()){ S.ng.people.push(i.value.trim()); }
     var btn = $('#ngCreate'); btn.disabled = true;
-    var r = await createGroup(S.ng.name.trim(), S.ng.icon, S.ng.people, null, S.ng.color); S.gid = r.gid; S.tab = 'expenses'; go('group'); toast('Group created');
+    var r = await createGroup(S.ng.name.trim(), 0, S.ng.people); S.gid = r.gid; S.tab = 'expenses'; go('group'); toast('Group created');
   },
   claim:async function(el){ if (!needWrite()) return; var id = el.dataset.id, gid = S.gid; await gcol(gid, 'people').doc(id).update({uid:S.uid}); await gcol(gid, 'activity').add({who:id, text:'joined', ts:Date.now()}); toast('You’re in!'); },
   claimNew:async function(){ if (!needWrite()) return; var gid = S.gid, ref = await gcol(gid, 'people').add({name:S.profile.name, pig:S.profile.pig, uid:S.uid, ts:Date.now()}); await gcol(gid, 'activity').add({who:ref.id, text:'joined', ts:Date.now()}); toast('You’re in!'); },
@@ -788,7 +780,6 @@ var A = {
     if (!needWrite()) return; var i = $('#gPerson'), v = i.value.trim(); if (!v) return;
     await gcol(S.gid, 'people').add({name:v, pig:nextPig(S.gid), uid:null, ts:Date.now()}); await log(S.gid, 'added ' + v); i.value = ''; toast(v + ' added');
   },
-  setColor:async function(el){ if (!needWrite()) return; await col('groups').doc(S.gid).update({color:el.dataset.c}); await log(S.gid, 'changed the group colour'); toast('Colour changed'); },
   renameGroup:async function(){ if (!needWrite()) return; var v = $('#gName').value.trim(); if (!v) return; var old = S.groups[S.gid].name; await col('groups').doc(S.gid).update({name:v}); await log(S.gid, 'renamed the group to ' + v); toast('Renamed'); },
   removePerson:async function(el){
     if (!needWrite()) return; var gid = S.gid, id = el.dataset.id, nm = S.people[gid][id].name;
