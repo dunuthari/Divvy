@@ -135,6 +135,8 @@ img{display:block}
 .mrow.off .grow,.mrow.off .pav{opacity:.45}
 .mcol{width:78px;flex:none;text-align:right}
 .mrow .mini{width:78px}
+.pchip{display:inline-flex;align-items:center;gap:8px;padding:5px 14px 5px 5px;border-radius:999px;background:var(--surface);box-shadow:inset 0 0 0 1px var(--line);font-weight:700;min-height:44px}
+.pchip.on{background:var(--btn-bg);color:var(--btn-fg);box-shadow:none}
 .chkbtn{display:grid;place-items:center;width:30px;height:44px;flex:none}
 .chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
 .chip{display:inline-flex;align-items:center;gap:6px;background:var(--surface);box-shadow:inset 0 0 0 1px var(--line);border-radius:999px;padding:4px 6px 4px 14px;font-weight:700}
@@ -526,23 +528,34 @@ function activityTab(gid){
 /* add / edit expense */
 function newDraft(gid){
   var shared = {}; activePeople(gid).forEach(function(m){ shared[m] = true; }); var me = myPid(gid);
-  return {editId:null, title:'', amount:'', payAmt:{}, payTouched:false, shared:shared, mode:'equal', pct:{}, exact:{}};
+  return {editId:null, title:'', amount:'', payAmt:{}, payTouched:false, payer:me, multi:false, shared:shared, mode:'equal', pct:{}, exact:{}};
 }
 function addScreen(){
   var d = S.draft;
   return '<div class="topbar"><button class="textbtn" data-a="cancelAdd">Cancel</button><h1>' + (d.editId ? 'Edit expense' : 'New expense') + '</h1><span style="width:70px"></span></div><div class="scroll" style="padding-bottom:150px">' +
     '<label class="field" style="margin-top:2px"><span>What was it for?</span><input class="input" id="fTitle" data-in="title" value="' + esc(d.title) + '" placeholder="Lunch, taxi, groceries" maxlength="60" autocomplete="off"></label>' +
     '<label class="field"><span>Total amount</span><div class="amountbox"><span>Rs</span><input id="fAmount" data-in="amount" inputmode="numeric" value="' + esc(d.amount) + '" placeholder="0" autocomplete="off"></div></label>' +
-    '<div class="label" style="margin:22px 0 4px">Who paid and how to split</div><div class="muted small" style="margin-bottom:10px">Type what each person paid. Untick anyone who didn’t share it.</div>' +
+    '<div class="label" style="margin:22px 0 10px">Who paid?</div><div id="payBlock">' + payBlock() + '</div><div id="payStatus"></div>' +
+    '<div class="label" style="margin:26px 0 4px">Split between</div><div class="muted small" style="margin-bottom:10px">Untick anyone who didn’t share it.</div>' +
     '<div class="seg" role="radiogroup" aria-label="Split mode" id="modeSeg">' + modeSeg() + '</div>' +
-    '<div class="card" style="margin-top:10px;padding:4px 14px 8px"><div id="mergeBlock">' + mergeRows() + '</div></div>' +
-    '<div id="payStatus"></div><div id="splitStatus"></div><div class="small muted" id="eqNote" style="margin:8px 2px 0"></div></div>' +
+    '<div class="card" style="margin-top:10px;padding:4px 14px 8px"><div id="splitBlock">' + mergeRows() + '</div></div>' +
+    '<div id="splitStatus"></div><div class="small muted" id="eqNote" style="margin:8px 2px 0"></div></div>' +
     '<div class="bottombar"><div class="hint" id="saveHint"></div><button class="btn block" id="saveBtn" data-a="save" disabled>' + (d.editId ? 'Save changes' : 'Save expense') + '</button></div>';
 }
-function modeSeg(){ return [['equal','Equal'],['pct','Percent'],['exact','Exact']].map(function(x){ return '<button role="radio" aria-checked="' + (S.draft.mode === x[0]) + '" data-a="mode" data-m="' + x[0] + '">' + x[1] + '</button>'; }).join(''); }
+function modeSeg(){ return [['equal','Equally'],['pct','By %'],['exact','By amount']].map(function(x){ return '<button role="radio" aria-checked="' + (S.draft.mode === x[0]) + '" data-a="mode" data-m="' + x[0] + '">' + x[1] + '</button>'; }).join(''); }
+function payBlock(){
+  var d = S.draft, gid = S.gid, ids = activePeople(gid);
+  if (!d.multi){
+    return '<div class="chips" style="margin-top:0" role="radiogroup" aria-label="Paid by">' + ids.map(function(m){ var on = d.payer === m;
+      return '<button class="pchip' + (on ? ' on' : '') + '" role="radio" aria-checked="' + on + '" data-a="payer" data-id="' + m + '">' + av(gid, m, 28) + '<span>' + esc(pname(gid, m)) + '</span></button>'; }).join('') + '</div>' +
+      '<button class="textbtn" style="padding:10px 0 0;color:var(--muted);text-decoration:underline" data-a="multiPay">More than one person paid?</button>';
+  }
+  return '<div class="muted small" style="margin-bottom:6px">Type how much each person paid.</div><div class="card" style="padding:4px 14px 8px">' + ids.map(function(m){
+    return '<div class="mrow">' + av(gid, m, 34) + '<b class="grow ell">' + esc(pname(gid, m)) + '</b><span class="mcol" style="width:120px"><input class="mini num" style="width:120px" id="paid-' + m + '" data-in="payAmt" data-id="' + m + '" inputmode="numeric" placeholder="0" value="' + esc(d.payAmt[m] || '') + '" aria-label="Amount ' + esc(pname(gid, m)) + ' paid"></span></div>'; }).join('') + '</div>' +
+    '<button class="textbtn" style="padding:10px 0 0;color:var(--muted);text-decoration:underline" data-a="multiPay">Only one person paid</button>';
+}
 function mergeRows(){
   var d = S.draft, gid = S.gid, ids = activePeople(gid), mode = d.mode;
-  var head = '<div class="mrow head"><span class="grow"></span><span class="mcol">Paid</span><span class="mcol">' + (mode === 'pct' ? 'Share %' : mode === 'exact' ? 'Share Rs' : 'Share') + '</span></div>';
   var rows = ids.map(function(m){
     var on = !!d.shared[m], share;
     if (!on) share = '<span class="mcol muted">—</span>';
@@ -550,18 +563,17 @@ function mergeRows(){
     else if (mode === 'pct') share = '<span class="mcol" style="display:flex;align-items:center;justify-content:flex-end;gap:4px"><input class="mini num" style="width:58px" data-in="pct" data-id="' + m + '" inputmode="decimal" placeholder="0" value="' + esc(d.pct[m] || '') + '" aria-label="Percent for ' + esc(pname(gid, m)) + '"><span class="muted">%</span></span>';
     else share = '<span class="mcol"><input class="mini num" data-in="exact" data-id="' + m + '" inputmode="numeric" placeholder="0" value="' + esc(d.exact[m] || '') + '" aria-label="Share for ' + esc(pname(gid, m)) + '"></span>';
     return '<div class="mrow' + (on ? '' : ' off') + '"><button class="chkbtn" role="checkbox" aria-checked="' + on + '" data-a="sOn" data-id="' + m + '" aria-label="Include ' + esc(pname(gid, m)) + ' in the split"><span class="chk">' + ic('check') + '</span></button>' + av(gid, m, 34) +
-      '<div class="grow"><b class="ell" style="display:block">' + esc(pname(gid, m)) + '</b><div class="small muted num" id="sub-' + m + '"></div></div>' +
-      '<span class="mcol"><input class="mini num" id="paid-' + m + '" data-in="payAmt" data-id="' + m + '" inputmode="numeric" placeholder="0" value="' + esc(d.payAmt[m] || '') + '" aria-label="Amount ' + esc(pname(gid, m)) + ' paid"></span>' + share + '</div>';
+      '<div class="grow"><b class="ell" style="display:block">' + esc(pname(gid, m)) + '</b><div class="small muted num" id="sub-' + m + '"></div></div>' + share + '</div>';
   }).join('');
   var extra = mode === 'pct' ? '<div style="padding:8px 0 0"><button class="textbtn" style="padding:6px 0;color:var(--ink)" data-a="fill">Fill equal percentages</button></div>' : mode === 'exact' ? '<div style="padding:8px 0 0"><button class="textbtn" style="padding:6px 0;color:var(--ink)" data-a="fill">Fill equal amounts</button></div>' : '';
-  return head + rows + extra;
+  return rows + extra;
 }
 function statusLine(ok, text){ return '<div class="status ' + (ok ? 'ok' : 'bad') + '">' + ic(ok ? 'check' : 'alert') + '<span class="num">' + text + '</span></div>'; }
 function refresh(){
   var d = S.draft; if (!d) return;
   var ids = activePeople(S.gid), v = validateDraft(d, ids);
   var ps = $('#payStatus');
-  if (ps) ps.innerHTML = !v.total ? '' : !v.payIds.length ? statusLine(false, 'Type who paid') : v.payLeft === 0 ? statusLine(true, 'Paid ' + rs(v.total) + ' of ' + rs(v.total)) : v.payLeft > 0 ? statusLine(false, 'Paid ' + rs(v.total - v.payLeft) + ' of ' + rs(v.total) + ' · ' + rs(v.payLeft) + ' left') : statusLine(false, 'Paid ' + rs(-v.payLeft) + ' too much');
+  if (ps) ps.innerHTML = !d.multi || !v.total ? '' : !v.payIds.length ? statusLine(false, 'Type who paid') : v.payLeft === 0 ? statusLine(true, 'Paid ' + rs(v.total) + ' of ' + rs(v.total)) : v.payLeft > 0 ? statusLine(false, 'Paid ' + rs(v.total - v.payLeft) + ' of ' + rs(v.total) + ' · ' + rs(v.payLeft) + ' left') : statusLine(false, 'Paid ' + rs(-v.payLeft) + ' too much');
   var ss = $('#splitStatus');
   if (ss) ss.innerHTML = d.mode === 'equal' || !v.ids.length ? '' : d.mode === 'pct' ? (v.splitOk ? statusLine(true, 'Shares add up to 100%') : statusLine(false, 'Shares: ' + (v.splitLeft > 0 ? +v.splitLeft.toFixed(2) + '% left' : +(-v.splitLeft).toFixed(2) + '% over'))) : (!v.total ? '' : v.splitOk ? statusLine(true, 'Shares add up to ' + rs(v.total)) : statusLine(false, 'Shares: ' + (v.splitLeft > 0 ? rs(v.splitLeft) + ' left to assign' : rs(-v.splitLeft) + ' over')));
   v.ids.forEach(function(m){
@@ -732,6 +744,7 @@ var A = {
     var gid = S.gid, e = S.expenses[gid][el.dataset.id], d = newDraft(gid);
     d.editId = el.dataset.id; d.title = e.title; d.amount = String(e.amount); d.payAmt = {}; d.shared = {}; d.payTouched = true;
     Object.keys(e.payers).forEach(function(m){ d.payAmt[m] = String(e.payers[m]); });
+    d.multi = Object.keys(e.payers).length > 1; d.payer = Object.keys(e.payers)[0];
     Object.keys(e.shares).forEach(function(m){ d.shared[m] = true; });
     d.mode = e.mode || 'exact'; d.pct = Object.assign({}, e.pct); d.exact = Object.assign({}, e.exact);
     if (!Object.keys(d.exact).length) Object.keys(e.shares).forEach(function(m){ d.exact[m] = String(e.shares[m]); });
@@ -745,13 +758,19 @@ var A = {
     S.sheet = null; render(true);
     toast('Expense deleted', 'Undo', async function(){ await gcol(gid, 'expenses').doc(id).update({deleted:false}); await log(gid, 'restored ' + e.title); });
   },
-  sOn:function(el){ var d = S.draft, m = el.dataset.id; d.shared[m] = !d.shared[m]; $('#mergeBlock').innerHTML = mergeRows(); refresh(); },
-  mode:function(el){ S.draft.mode = el.dataset.m; $('#modeSeg').innerHTML = modeSeg(); $('#mergeBlock').innerHTML = mergeRows(); refresh(); },
+  payer:function(el){ var d = S.draft; d.payer = el.dataset.id; d.payAmt = {}; d.payAmt[d.payer] = d.amount; $('#payBlock').innerHTML = payBlock(); refresh(); },
+  multiPay:function(){
+    var d = S.draft; d.multi = !d.multi; d.payTouched = false;
+    if (!d.multi){ var best = d.payer, bv = -1; Object.keys(d.payAmt).forEach(function(m){ var x = parseInt(d.payAmt[m]) || 0; if (x > bv){ bv = x; best = m; } }); d.payer = best; d.payAmt = {}; d.payAmt[best] = d.amount; }
+    $('#payBlock').innerHTML = payBlock(); refresh();
+  },
+  sOn:function(el){ var d = S.draft, m = el.dataset.id; d.shared[m] = !d.shared[m]; $('#splitBlock').innerHTML = mergeRows(); refresh(); },
+  mode:function(el){ S.draft.mode = el.dataset.m; $('#modeSeg').innerHTML = modeSeg(); $('#splitBlock').innerHTML = mergeRows(); refresh(); },
   fill:function(){
     var d = S.draft, ids = activePeople(S.gid), v = validateDraft(d, ids); if (!v.ids.length) return;
     if (d.mode === 'pct'){ var base = Math.floor(1000 / v.ids.length) / 10; v.ids.forEach(function(m){ d.pct[m] = String(base); }); var last = v.ids[v.ids.length - 1]; d.pct[last] = String(Math.round((100 - base * (v.ids.length - 1)) * 10) / 10); }
     else { if (!v.total){ toast('Enter the total first'); return; } var sh = splitEqual(v.total, v.ids, v.payers); v.ids.forEach(function(m){ d.exact[m] = String(sh[m]); }); }
-    $('#mergeBlock').innerHTML = mergeRows(); refresh();
+    $('#splitBlock').innerHTML = mergeRows(); refresh();
   },
   save:async function(){
     if (!needWrite()) return;
@@ -841,7 +860,7 @@ document.addEventListener('input', function(e){
   var v = el.value.replace(/\D/g, ''); if (v !== el.value) el.value = v;
   if (k === 'amount'){
     d.amount = v;
-    if (!d.payTouched && !d.editId){ var me = myPid(S.gid); d.payAmt = {}; d.payAmt[me] = v; var pe = $('#paid-' + me); if (pe) pe.value = v; ids2(function(m){ if (m !== me){ var o = $('#paid-' + m); if (o) o.value = ''; } }); }
+    if (!d.multi || (!d.payTouched && !d.editId)){ var me = d.payer; d.payAmt = {}; d.payAmt[me] = v; var pe = $('#paid-' + me); if (pe) pe.value = v; ids2(function(m){ if (m !== me){ var o = $('#paid-' + m); if (o) o.value = ''; } }); }
   } else if (k === 'payAmt'){ d.payAmt[id] = v; d.payTouched = true; } else if (k === 'exact') d.exact[id] = v;
   refresh();
 });
