@@ -332,12 +332,14 @@ Owner → Links → **New view link** (old one dies) or **Turn off view link** `
 Step by step (screen "New expense"):
 1. **Title** chip. Required. Quick suggestions: Lunch, Dinner, Taxi, Groceries, Tickets, Rent.
 2. **Total amount.** Large numeric field, whole rupees only. Decimals are blocked by the keypad.
-3. **Who paid?** Avatar row of all people.
-   - Exactly one tapped: that person paid the full total. No amount field.
-   - More than one tapped: each shows an amount field. A live status line reads "Rs 8,000 of Rs 10,000 · Rs 2,000 left", turning green at "Adds up to Rs 10,000".
-   - Default: the current user is preselected.
-4. **Who shared it?** Everyone ticked by default. Untick to exclude a person from this expense. At least one person must stay ticked.
-5. **Split** segmented control: **Equal**, **Percent**, **Exact** (8.2 to 8.4).
+3. **Who paid and how to split** is one merged card (no separate "who paid" and "who shared" blocks):
+   - A **split mode** control sits on top: Equal, Percent, Exact.
+   - One row per person: a tick box (shared it or not), avatar, name, a **Paid** field, and a **Share** column.
+   - **Paid:** type what each person paid, leave it empty if they didn't pay. The creator is prefilled with the full total until anyone edits a Paid field.
+   - **Share:** Equal shows the computed amount, Percent shows a % field (with the rupee amount under the name), Exact shows a rupee field. Unticked people show a dash and are excluded from the split. At least one person must stay ticked.
+   - A live status line under the card reads "Paid Rs 8,000 of Rs 10,000 · Rs 2,000 left", turning green at "Paid Rs 10,000 of Rs 10,000". Percent and Exact modes add a second line, for example "Shares: 20% left".
+4. **Split modes** are described in 8.2 to 8.4 and apply to the Share column.
+5. (Merged into step 3.)
 6. Optional fields (collapsed under "More"): **Date** (default today), **Note**, **Category icon** `[V1.1]`.
 7. **Save expense** enabled only when every check passes. When disabled, a one-line hint says why: "Paid amounts must add up to Rs 10,000".
 8. On save: toast "Expense added. Everyone sees it now." with Hype pig. Group shows the new expense at the top. Balances update live. Activity entry written. Other members get a notification (10.2).
@@ -370,9 +372,8 @@ Values per mode are kept separately while the form is open, so flipping Equal �
 |---|---|---|
 | Title empty | Yes | Add a title |
 | Total is 0 or empty | Yes | Enter the total amount |
-| No payer | Yes | Pick who paid |
-| Payer amounts ≠ total | Yes | Paid amounts must add up to Rs X |
-| A ticked payer has Rs 0 | Yes | Everyone ticked needs an amount |
+| Nobody typed a paid amount | Yes | Type who paid |
+| Paid amounts ≠ total | Yes | Paid amounts must add up to Rs X |
 | No one shared | Yes | Pick at least one person who shared it |
 | Percent ≠ 100% | Yes | Percentages must add up to 100% |
 | Exact amounts ≠ total | Yes | Amounts must add up to Rs X |
