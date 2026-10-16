@@ -210,7 +210,7 @@ Asset set in `assets/capybaras/`:
 - `bust_01…10`: upper body, cropped at about 66% of height, for tile hero use.
 - `head_01…10`: square head crops for avatars.
 - `full_01…10`: full-body versions for the welcome hero and large previews.
-- `source_grid.jpg`: the original generated grid.
+- Originals: the 10 standalone images live in the project Google Drive folder (2048×2048, white background).
 
 **Do**
 - Crop at the waist and overlap a card edge. Never float the capybara mid-card.
@@ -291,7 +291,7 @@ Screens still to design: group creation, expense detail sheet, record-payment sh
 
 ## 12. Open questions and next steps
 
-- Regenerate each capybara on its own (white background, full body) if any edge in the grid cut-outs looks rough.
+- Cut-outs were made from the standalone Drive images; re-export from the originals if any edge looks rough.
 - Decide the app icon (likely the Divvy capybara head on lilac).
 - Design the remaining screens listed in section 7.
 - Contrast audit of all tile and pill combinations in light and dark.
