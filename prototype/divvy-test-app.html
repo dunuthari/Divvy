@@ -50,7 +50,7 @@ img{display:block}
 #view{height:100%;display:flex;flex-direction:column}
 .grad{background:linear-gradient(180deg,var(--bg-top) 0%,var(--bg) 46%)}
 .scroll{flex:1;overflow-y:auto;overscroll-behavior:contain;padding:4px 20px 110px}
-.topbar{display:flex;align-items:center;gap:10px;padding:14px 16px 6px;min-height:60px}
+.topbar{display:flex;align-items:center;gap:8px;padding:14px 14px 6px;min-height:60px}
 .topbar h1{flex:1;margin:0;text-align:center;font-family:var(--f-display);font-weight:800;font-size:21px;letter-spacing:-.03em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .circle{width:46px;height:46px;border-radius:50%;display:grid;place-items:center;background:var(--surface);box-shadow:inset 0 0 0 1.5px var(--line);flex:none;color:var(--ink)}
 .circle.ink{background:var(--btn-bg);color:var(--btn-fg);box-shadow:none}
@@ -285,7 +285,7 @@ function makeLocalDb(){
 var $ = function(s){ return document.querySelector(s); };
 var esc = function(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); };
 var ICONS = {
-  back:'<path d="M15 5l-7 7 7 7"/>', plus:'<path d="M12 5v14M5 12h14"/>', x:'<path d="M6 6l12 12M18 6L6 18"/>', check:'<path d="M5 12.5l4.5 4.5L19 7.5"/>',
+  back:'<path d="M15 5l-7 7 7 7"/>', users:'<circle cx="9" cy="8" r="3.2"/><path d="M3 19c0-3.3 2.7-5.5 6-5.5s6 2.2 6 5.5"/><circle cx="17.5" cy="9" r="2.4"/><path d="M17 14c2.5 0 4.5 1.7 4.5 4.5"/>', plus:'<path d="M12 5v14M5 12h14"/>', x:'<path d="M6 6l12 12M18 6L6 18"/>', check:'<path d="M5 12.5l4.5 4.5L19 7.5"/>',
   share:'<path d="M12 15V4M8 8l4-4 4 4M5 13v5a2 2 0 002 2h10a2 2 0 002-2v-5"/>', fork:'<path d="M7 3v8M5 3v5a2 2 0 004 0V3M7 11v10M17 3c-2 2-3 5-3 8h3v10"/>',
   alert:'<circle cx="12" cy="12" r="9"/><path d="M12 7v6M12 16.5v.5"/>', lock:'<rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 018 0v3"/>',
   arrow:'<path d="M5 12h14M13 6l6 6-6 6"/>', user:'<circle cx="12" cy="8" r="3.6"/><path d="M5 20c0-4 3-6.5 7-6.5s7 2.5 7 6.5"/>', more:'<circle cx="5" cy="12" r="1.2"/><circle cx="12" cy="12" r="1.2"/><circle cx="19" cy="12" r="1.2"/>',
@@ -448,8 +448,8 @@ function groupScreen(){
   var h = '';
   var overriding = S.actAs[gid] && S.actAs[gid] !== realPid(gid);
   h += '<div class="row" style="padding:0 20px;justify-content:center"><button class="pill ' + (overriding ? 'wait' : '') + '" data-a="actasSheet" aria-label="Switch who you are testing as">' + (overriding ? 'Testing as ' + esc(S.people[gid][me].name) : 'You are ' + esc(S.people[gid][me].name)) + ' \u00b7 switch person</button></div>';
-  h = '<div class="topbar"><button class="circle" data-a="back" aria-label="Back to groups">' + ic('back') + '</button><div class="grow" style="text-align:center"><div style="font-family:var(--f-display);font-weight:800;font-size:21px;letter-spacing:-.03em" class="ell">' + esc(g.name) + '</div><div class="stack" style="justify-content:center;margin-top:4px">' + ppl.slice(0, 5).map(function(p){ return av(gid, p, 22); }).join('') + '</div></div>' +
-    '<button class="circle" data-a="share" aria-label="Share">' + ic('share') + '</button></div>' + h + '<div class="scroll">';
+  h = '<div class="topbar"><button class="circle" data-a="back" aria-label="Back to groups">' + ic('back') + '</button><div class="grow" style="text-align:center"><div style="font-family:var(--f-display);font-weight:800;font-size:21px;letter-spacing:-.03em" class="ell">' + esc(g.name) + '</div><button class="stack" style="justify-content:center;margin:4px auto 0" data-a="gset" aria-label="People and settings">' + ppl.slice(0, 5).map(function(p){ return av(gid, p, 22); }).join('') + '</button></div>' +
+    '<div class="row" style="gap:8px"><button class="circle" data-a="gset" aria-label="People and settings">' + ic('users') + '</button><button class="circle" data-a="share" aria-label="Share">' + ic('share') + '</button></div></div>' + h + '<div class="scroll">';
   var owedToMe = sug.filter(function(s){ return s.to === me; }).sort(function(a, b){ return b.amount - a.amount; })[0];
   var iOwe = sug.filter(function(s){ return s.from === me; }).sort(function(a, b){ return b.amount - a.amount; })[0];
   if (owedToMe){
@@ -609,7 +609,7 @@ function sheetHTML(){
       '<div class="label" style="margin:18px 0 6px">Join link</div><div class="linkbox"><code>divvy.app/j/' + esc(g.joinCode) + '</code><button class="btn xs" data-a="copyText" data-w="join">Copy</button></div>' +
       '<div class="label" style="margin:18px 0 6px">View link</div><div class="linkbox"><code>divvy.app/v/' + esc(g.token) + '</code><button class="btn xs" data-a="copyText" data-w="view">Copy</button></div>' +
       '<div class="row" style="margin-top:14px;gap:8px"><button class="btn sm ghost grow" data-a="guest">Preview guest page</button>' + (isOwner(gid) ? '<button class="btn sm ghost grow" data-a="regen">New view link</button>' : '') + '</div>' +
-      '<button class="btn block" style="margin-top:14px" data-a="copyText" data-w="status">Copy status for WhatsApp</button><button class="btn block ghost" style="margin-top:10px" data-a="gset">People and settings</button>';
+      '<button class="btn block" style="margin-top:14px" data-a="copyText" data-w="status">Copy status for WhatsApp</button>';
   } else if (sh.type === 'pay'){
     var amt = parseInt(sh.amount) || 0, ok = amt > 0 && amt <= sh.max;
     b = '<h3>Record a payment</h3><div class="muted small">Pay outside the app (bank or cash). ' + esc(pname(gid, sh.to)) + ' confirms they got it.</div>' +

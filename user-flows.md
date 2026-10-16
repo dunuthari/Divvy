@@ -201,8 +201,8 @@ Header: back, group name, face stack, share. Tabs: **Expenses**, **Balances**, *
 Bottom button: **Add expense** (hidden when the group is archived).
 
 ### 5.3 Group settings
-Group header → **⋯** → Settings sheet:
-- Rename (owner), icon and colour (owner), **People** (5.4), **Links** (6.5, 7.4), **Archive** (5.8), **Leave group** (5.9), **Delete group** (5.10, owner).
+Group header has two buttons: **People and settings** (people icon, also opened by tapping the face stack) and **Share**. People and settings opens a sheet with:
+- Rename (owner), icon and colour (owner), **People** (5.4, with add person), **Archive** (5.8), **Leave group** (5.9), **Delete group** (5.10, owner). Link management stays in the Share sheet (6.5, 7.4).
 
 ### 5.4 People in a group
 

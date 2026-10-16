@@ -233,7 +233,7 @@ All screens are 390 × 844 design size. The lunch example runs through all of th
 
 1. **Welcome.** Lilac gradient, pig 1 on a lilac disc, speech bubble, display headline, one Google button, fine print.
 2. **Home.** Avatar and greeting, lilac "You're owed" hero with the Baller pig and a "Settle up" button, two group bento tiles, "New group" tile, floating tab bar.
-3. **Group.** Back, title, face stack, share. Ink card "Ravi owes you Rs 2,000" with the Point pig and a Nudge button. Total spent and Your share tiles, tabs (Expenses, Balances, Activity), expense row, "Share the view link" row, bottom Add expense button.
+3. **Group.** Back, title, face stack, People and settings button, share. Ink card "Ravi owes you Rs 2,000" with the Point pig and a Nudge button. Total spent and Your share tiles, tabs (Expenses, Balances, Activity), expense row, "Share the view link" row, bottom Add expense button.
 4. **Add expense.** Title, big amount, then **one merged card**: split mode control on top, one row per person with a tick box, a Paid field and a Share column (computed, percent, or exact), live green or red status lines, Save.
 5. **Settle up (Balances tab).** Sky tile with the Waiting pig and bubble "Ravi says he paid you Rs 2,000. Did it land?" with **Yes, got it / Not yet**. Balances card with diverging bars, "Waiting for you" pill.
 6. **Pick your pig.** Large preview of the chosen outfit on a lilac stage, 5 × 2 grid of head avatars, Continue.
