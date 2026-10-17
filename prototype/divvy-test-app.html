@@ -586,7 +586,9 @@ function summaryHtml(v){
   ids.forEach(function(m){ var net = (v.payers[m] || 0) - (v.shares[m] || 0); if (net < 0) owe.push([m, -net]); else if (net > 0) get.push([m, net]); });
   var paidTxt = v.payIds.length === 1 ? nm(v.payIds[0]) + ' ' + rs(v.total) : v.payIds.map(function(m){ return nm(m) + ' ' + rs(v.payers[m]); }).join(' · ');
   var sv = v.ids.map(function(m){ return v.shares[m]; }), same = sv.every(function(x){ return x === sv[0]; });
-  var shareTxt = d0.mode === 'equal' && same ? 'Each share ' + rs(sv[0]) : v.ids.map(function(m){ return nm(m) + ' ' + (d0.mode === 'pct' ? (parseFloat(d0.pct[m]) || 0) + '% = ' : '') + rs(v.shares[m]); }).join(' · ');
+  var groupTxt = function(){ var order = [], by = {}; v.ids.forEach(function(m){ var k = v.shares[m]; if (!by[k]){ by[k] = []; order.push(k); } by[k].push(m); });
+    return order.map(function(k){ var names = by[k].map(function(m, i){ var n = nm(m); return i && n === 'You' ? 'you' : n; }); return joinNames(names) + ' ' + rs(+k) + (names.length > 1 ? ' each' : ''); }).join(' · '); };
+  var shareTxt = d0.mode === 'equal' ? groupTxt() : v.ids.map(function(m){ return nm(m) + ' ' + (d0.mode === 'pct' ? (parseFloat(d0.pct[m]) || 0) + '% = ' : '') + rs(v.shares[m]); }).join(' · ');
   var oweTxt;
   if (!owe.length) oweTxt = 'Nobody owes anything';
   else if (get.length === 1){
