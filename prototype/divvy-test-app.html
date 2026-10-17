@@ -573,7 +573,7 @@ function joinNames(a){ return a.length < 2 ? a.join('') : a.slice(0, -1).join(',
 function summaryHtml(v){
   var d0 = S.draft, gid = S.gid, nm = function(m){ return pname(gid, m); };
   var box = function(s, cls){ var c = cls === 'wait' ? 'var(--wait)' : 'var(--owed)', bg = cls === 'wait' ? 'var(--wait-soft)' : 'var(--owed-soft)';
-    return '<div class="sumbox" style="background:' + bg + ';color:' + c + '"><div class="small" style="font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-bottom:6px;opacity:.85">What happens</div><div style="font-weight:600;line-height:1.45">' + esc(s) + '</div></div>'; };
+    return '<div class="sumbox" style="background:' + bg + ';color:' + c + '"><div class="small" style="font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-bottom:6px;opacity:.85">What happens</div><div style="font-weight:600;line-height:1.5">' + (typeof s === 'string' ? esc(s) : s.map(function(r){ return '<div><span style="opacity:.75;font-weight:700">' + esc(r[0]) + '</span> ' + esc(r[1]).replace(/Rs /g, 'Rs\u00a0') + '</div>'; }).join('')) + '</div></div>'; };
   var waiting = function(s){ return box(s, 'wait'); };
   if (!v.total) return waiting('Enter the total amount to see how it will be shared.');
   if (!v.payOk) return waiting(!v.payIds.length ? 'Type how much each person paid.' : v.payLeft > 0 ? 'Paid amounts are ' + rs(v.payLeft) + ' short of ' + rs(v.total) + '.' : 'Paid amounts are ' + rs(-v.payLeft) + ' over ' + rs(v.total) + '.');
@@ -584,18 +584,18 @@ function summaryHtml(v){
   }
   var ids = activePeople(gid), owe = [], get = [];
   ids.forEach(function(m){ var net = (v.payers[m] || 0) - (v.shares[m] || 0); if (net < 0) owe.push([m, -net]); else if (net > 0) get.push([m, net]); });
-  var line1 = joinNames(v.payIds.map(nm)) + ' paid ' + rs(v.total) + '.';
+  var paidTxt = v.payIds.length === 1 ? nm(v.payIds[0]) + ' ' + rs(v.total) : v.payIds.map(function(m){ return nm(m) + ' ' + rs(v.payers[m]); }).join(' · ');
   var sv = v.ids.map(function(m){ return v.shares[m]; }), same = sv.every(function(x){ return x === sv[0]; });
-  var line2 = d0.mode === 'equal' && same ? ' Each share is ' + rs(sv[0]) + '.' : ' Shares: ' + v.ids.map(function(m){ return nm(m) + ' ' + (d0.mode === 'pct' ? (parseFloat(d0.pct[m]) || 0) + '% = ' : '') + rs(v.shares[m]); }).join(', ') + '.';
-  var line3;
-  if (!owe.length) line3 = ' Nobody owes anything.';
+  var shareTxt = d0.mode === 'equal' && same ? 'Each share ' + rs(sv[0]) : v.ids.map(function(m){ return nm(m) + ' ' + (d0.mode === 'pct' ? (parseFloat(d0.pct[m]) || 0) + '% = ' : '') + rs(v.shares[m]); }).join(' · ');
+  var oweTxt;
+  if (!owe.length) oweTxt = 'Nobody owes anything';
   else if (get.length === 1){
     var gn = nm(get[0][0]), eq = owe.every(function(x){ return x[1] === owe[0][1]; });
-    line3 = owe.length === 1 ? ' ' + nm(owe[0][0]) + (nm(owe[0][0]) === 'You' ? ' owe ' : ' owes ') + gn + ' ' + rs(owe[0][1]) + '.'
-      : eq ? ' ' + joinNames(owe.map(function(x){ return nm(x[0]); })) + ' each owe ' + gn + ' ' + rs(owe[0][1]) + '.'
-      : ' ' + joinNames(owe.map(function(x){ return nm(x[0]) + ' ' + rs(x[1]); })) + ' owe ' + gn + '.';
-  } else line3 = ' Owing: ' + joinNames(owe.map(function(x){ return nm(x[0]) + ' ' + rs(x[1]); })) + ' (to ' + joinNames(get.map(function(x){ return nm(x[0]); })) + ').';
-  return box(line1 + line2 + line3, owe.length ? 'wait' : 'ok');
+    oweTxt = owe.length === 1 ? nm(owe[0][0]) + (nm(owe[0][0]) === 'You' ? ' owe ' : ' owes ') + gn + ' ' + rs(owe[0][1])
+      : eq ? joinNames(owe.map(function(x){ return nm(x[0]); })) + ' owe ' + gn + ' ' + rs(owe[0][1]) + ' each'
+      : joinNames(owe.map(function(x){ return nm(x[0]) + ' ' + rs(x[1]); })) + ' owe ' + gn;
+  } else oweTxt = joinNames(owe.map(function(x){ return nm(x[0]) + ' ' + rs(x[1]); })) + ' owe (to ' + joinNames(get.map(function(x){ return nm(x[0]); })) + ')';
+  return box([['Paid:', paidTxt], ['Shares:', shareTxt], ['Owes:', oweTxt]], owe.length ? 'wait' : 'ok');
 }
 function statusLine(ok, text){ return '<div class="status ' + (ok ? 'ok' : 'bad') + '">' + ic(ok ? 'check' : 'alert') + '<span class="num">' + text + '</span></div>'; }
 function refresh(){
