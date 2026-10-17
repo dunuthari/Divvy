@@ -539,7 +539,7 @@ function addScreen(){
     '<div class="label" style="margin:26px 0 4px">Split between</div><div class="muted small" style="margin-bottom:10px">Untick anyone who didn’t share it.</div>' +
     '<div class="seg" role="radiogroup" aria-label="Split mode" id="modeSeg">' + modeSeg() + '</div>' +
     '<div class="card" style="margin-top:10px;padding:4px 14px 8px"><div id="splitBlock">' + mergeRows() + '</div></div>' +
-    '<div id="splitStatus"></div><div class="small muted" id="eqNote" style="margin:8px 2px 0"></div></div>' +
+    '<div id="splitStatus"></div><div id="summary"></div><div class="small muted" id="eqNote" style="margin:8px 2px 0"></div></div>' +
     '<div class="bottombar"><div class="hint" id="saveHint"></div><button class="btn block" id="saveBtn" data-a="save" disabled>' + (d.editId ? 'Save changes' : 'Save expense') + '</button></div>';
 }
 function modeSeg(){ return [['equal','Equally'],['pct','By %'],['exact','By amount']].map(function(x){ return '<button role="radio" aria-checked="' + (S.draft.mode === x[0]) + '" data-a="mode" data-m="' + x[0] + '">' + x[1] + '</button>'; }).join(''); }
@@ -568,6 +568,21 @@ function mergeRows(){
   var extra = mode === 'pct' ? '<div style="padding:8px 0 0"><button class="textbtn" style="padding:6px 0;color:var(--ink)" data-a="fill">Fill equal percentages</button></div>' : mode === 'exact' ? '<div style="padding:8px 0 0"><button class="textbtn" style="padding:6px 0;color:var(--ink)" data-a="fill">Fill equal amounts</button></div>' : '';
   return rows + extra;
 }
+function joinNames(a){ return a.length < 2 ? a.join('') : a.slice(0, -1).join(', ') + ' and ' + a[a.length - 1]; }
+function summaryHtml(v){
+  if (!v.shares || !v.payOk || !v.total) return '';
+  var gid = S.gid, ids = activePeople(gid), owe = [], get = [], one = function(m, a, b){ return pname(gid, m) + (pname(gid, m) === 'You' ? a : b); };
+  ids.forEach(function(m){ var net = (v.payers[m] || 0) - (v.shares[m] || 0); if (net < 0) owe.push([m, -net]); else if (net > 0) get.push([m, net]); });
+  var payerNames = joinNames(v.payIds.map(function(m){ return pname(gid, m); }));
+  var line1 = payerNames + ' paid ' + rs(v.total) + '.';
+  var shareVals = v.ids.map(function(m){ return v.shares[m]; }), same = shareVals.every(function(x){ return x === shareVals[0]; });
+  var line2 = same ? ' Each share is ' + rs(shareVals[0]) + '.' : '';
+  var owes = owe.map(function(x){ return pname(gid, x[0]) + ' ' + rs(x[1]); }), gets = get.map(function(x){ return pname(gid, x[0]) + ' ' + rs(x[1]); });
+  var line3 = !owe.length ? ' Nobody owes anything.' : (' ' + (owe.length === 1 ? one(owe[0][0], ' owe ', ' owes ') + rs(owe[0][1]) : 'Owing: ' + joinNames(owes)) + (get.length === 1 ? ' to ' + pname(gid, get[0][0]) : get.length > 1 ? ' (to ' + joinNames(get.map(function(x){ return pname(gid, x[0]); })) + ')' : '') + '.');
+  if (owe.length > 1 && get.length === 1) line3 = ' ' + joinNames(owe.map(function(x){ return pname(gid, x[0]); })) + ' owe ' + pname(gid, get[0][0]) + ': ' + owe.map(function(x){ return rs(x[1]); }).join(', ') + '.';
+  if (owe.length > 1 && get.length === 1 && owe.every(function(x){ return x[1] === owe[0][1]; })) line3 = ' ' + joinNames(owe.map(function(x){ return pname(gid, x[0]); })) + ' each owe ' + pname(gid, get[0][0]) + ' ' + rs(owe[0][1]) + '.';
+  return '<div class="card" style="margin-top:14px;padding:14px 16px"><div class="small muted" style="font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-bottom:6px">What happens</div><div style="font-weight:600;line-height:1.45">' + esc(line1 + line2 + line3) + '</div></div>';
+}
 function statusLine(ok, text){ return '<div class="status ' + (ok ? 'ok' : 'bad') + '">' + ic(ok ? 'check' : 'alert') + '<span class="num">' + text + '</span></div>'; }
 function refresh(){
   var d = S.draft; if (!d) return;
@@ -581,6 +596,7 @@ function refresh(){
     if (el && d.mode === 'equal') el.textContent = v.shares ? rs(v.shares[m]) : '—';
     if (sub && d.mode === 'pct'){ var p = parseFloat(d.pct[m]) || 0; sub.textContent = v.total && p ? '≈ ' + rs(Math.floor(v.total * p / 100)) : ''; }
   });
+  var sm = $('#summary'); if (sm) sm.innerHTML = summaryHtml(v);
   var note = $('#eqNote');
   if (note){ note.textContent = '';
     if (d.mode === 'equal' && v.shares && v.ids.length){ var base = Math.floor(v.total / v.ids.length), rem = v.total - base * v.ids.length;
