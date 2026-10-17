@@ -570,18 +570,25 @@ function mergeRows(){
 }
 function joinNames(a){ return a.length < 2 ? a.join('') : a.slice(0, -1).join(', ') + ' and ' + a[a.length - 1]; }
 function summaryHtml(v){
-  if (!v.shares || !v.payOk || !v.total) return '';
+  var d0 = S.draft, box = function(s){ return '<div class="card" style="margin-top:14px;padding:14px 16px"><div class="small muted" style="font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-bottom:6px">What happens</div><div style="font-weight:600;line-height:1.45">' + esc(s) + '</div></div>'; };
+  if (!v.total) return box('Enter the total amount to see how it will be shared.');
+  if (!v.payOk) return box(!v.payIds.length ? 'Type how much each person paid.' : v.payLeft > 0 ? 'Paid amounts are ' + rs(v.payLeft) + ' short of ' + rs(v.total) + '.' : 'Paid amounts are ' + rs(-v.payLeft) + ' over ' + rs(v.total) + '.');
+  if (!v.ids.length) return box('Tick at least one person who shared this.');
+  if (!v.shares){
+    if (d0.mode === 'pct') return box(v.splitLeft > 0 ? 'Percentages add up to ' + +(100 - v.splitLeft).toFixed(2) + '%. Give out ' + +v.splitLeft.toFixed(2) + '% more to reach 100%.' : 'Percentages add up to ' + +(100 - v.splitLeft).toFixed(2) + '%. Take off ' + +(-v.splitLeft).toFixed(2) + '% to reach 100%.');
+    return box(v.splitLeft > 0 ? rs(v.total - v.splitLeft) + ' of ' + rs(v.total) + ' is given out. ' + rs(v.splitLeft) + ' left to assign.' : rs(-v.splitLeft) + ' too much. The shares must add up to ' + rs(v.total) + '.');
+  }
   var gid = S.gid, ids = activePeople(gid), owe = [], get = [], one = function(m, a, b){ return pname(gid, m) + (pname(gid, m) === 'You' ? a : b); };
   ids.forEach(function(m){ var net = (v.payers[m] || 0) - (v.shares[m] || 0); if (net < 0) owe.push([m, -net]); else if (net > 0) get.push([m, net]); });
   var payerNames = joinNames(v.payIds.map(function(m){ return pname(gid, m); }));
   var line1 = payerNames + ' paid ' + rs(v.total) + '.';
   var shareVals = v.ids.map(function(m){ return v.shares[m]; }), same = shareVals.every(function(x){ return x === shareVals[0]; });
-  var line2 = same ? ' Each share is ' + rs(shareVals[0]) + '.' : '';
+  var line2 = same && d0.mode === 'equal' ? ' Each share is ' + rs(shareVals[0]) + '.' : d0.mode === 'pct' ? ' Shares: ' + v.ids.map(function(m){ return pname(gid, m) + ' ' + (parseFloat(d0.pct[m]) || 0) + '% = ' + rs(v.shares[m]); }).join(', ') + '.' : d0.mode === 'exact' ? ' Shares: ' + v.ids.map(function(m){ return pname(gid, m) + ' ' + rs(v.shares[m]); }).join(', ') + '.' : '';
   var owes = owe.map(function(x){ return pname(gid, x[0]) + ' ' + rs(x[1]); }), gets = get.map(function(x){ return pname(gid, x[0]) + ' ' + rs(x[1]); });
   var line3 = !owe.length ? ' Nobody owes anything.' : (' ' + (owe.length === 1 ? one(owe[0][0], ' owe ', ' owes ') + rs(owe[0][1]) : 'Owing: ' + joinNames(owes)) + (get.length === 1 ? ' to ' + pname(gid, get[0][0]) : get.length > 1 ? ' (to ' + joinNames(get.map(function(x){ return pname(gid, x[0]); })) + ')' : '') + '.');
   if (owe.length > 1 && get.length === 1) line3 = ' ' + joinNames(owe.map(function(x){ return pname(gid, x[0]); })) + ' owe ' + pname(gid, get[0][0]) + ': ' + owe.map(function(x){ return rs(x[1]); }).join(', ') + '.';
   if (owe.length > 1 && get.length === 1 && owe.every(function(x){ return x[1] === owe[0][1]; })) line3 = ' ' + joinNames(owe.map(function(x){ return pname(gid, x[0]); })) + ' each owe ' + pname(gid, get[0][0]) + ' ' + rs(owe[0][1]) + '.';
-  return '<div class="card" style="margin-top:14px;padding:14px 16px"><div class="small muted" style="font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-bottom:6px">What happens</div><div style="font-weight:600;line-height:1.45">' + esc(line1 + line2 + line3) + '</div></div>';
+  return box(line1 + line2 + line3);
 }
 function statusLine(ok, text){ return '<div class="status ' + (ok ? 'ok' : 'bad') + '">' + ic(ok ? 'check' : 'alert') + '<span class="num">' + text + '</span></div>'; }
 function refresh(){
