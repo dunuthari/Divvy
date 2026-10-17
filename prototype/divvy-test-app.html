@@ -71,9 +71,7 @@ img{display:block}
 .pill.owe{background:var(--owe-soft);color:var(--owe);box-shadow:none}
 .pill.wait{background:var(--wait-soft);color:var(--wait);box-shadow:none}
 .pill.ink{background:var(--btn-bg);color:var(--btn-fg);box-shadow:none}
-.pills{display:flex;flex-wrap:wrap;gap:8px}
-.pills .pill{height:auto;min-height:30px;padding:6px 12px;line-height:1.3;white-space:normal}
-.pills .pill .i{width:14px;height:14px;flex:none}
+.sumbox{margin-top:14px;padding:14px 16px;border-radius:var(--r-card,20px)}
 .pill.glass{background:var(--glass);color:var(--ink);box-shadow:none}
 
 .pav{--sz:44px;width:var(--sz);height:var(--sz);border-radius:50%;overflow:hidden;flex:none;display:block;position:relative;background:var(--lilac)}
@@ -574,29 +572,30 @@ function mergeRows(){
 function joinNames(a){ return a.length < 2 ? a.join('') : a.slice(0, -1).join(', ') + ' and ' + a[a.length - 1]; }
 function summaryHtml(v){
   var d0 = S.draft, gid = S.gid, nm = function(m){ return pname(gid, m); };
-  var wrap = function(inner){ return '<div style="margin-top:14px"><div class="small muted" style="font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin:0 2px 8px">What happens</div><div class="pills">' + inner + '</div></div>'; };
-  var pill = function(cls, s, icon){ return '<span class="pill ' + cls + '">' + (icon ? ic(icon) : '') + esc(s) + '</span>'; };
-  var waiting = function(s){ return wrap(pill('wait', s, 'alert')); };
-  if (!v.total) return waiting('Enter the total amount to see how it will be shared');
-  if (!v.payOk) return waiting(!v.payIds.length ? 'Type how much each person paid' : v.payLeft > 0 ? 'Paid amounts are ' + rs(v.payLeft) + ' short of ' + rs(v.total) : 'Paid amounts are ' + rs(-v.payLeft) + ' over ' + rs(v.total));
-  if (!v.ids.length) return waiting('Tick at least one person who shared this');
+  var box = function(s, cls){ var c = cls === 'wait' ? 'var(--wait)' : 'var(--owed)', bg = cls === 'wait' ? 'var(--wait-soft)' : 'var(--owed-soft)';
+    return '<div class="sumbox" style="background:' + bg + ';color:' + c + '"><div class="small" style="font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-bottom:6px;opacity:.85">What happens</div><div style="font-weight:600;line-height:1.45">' + esc(s) + '</div></div>'; };
+  var waiting = function(s){ return box(s, 'wait'); };
+  if (!v.total) return waiting('Enter the total amount to see how it will be shared.');
+  if (!v.payOk) return waiting(!v.payIds.length ? 'Type how much each person paid.' : v.payLeft > 0 ? 'Paid amounts are ' + rs(v.payLeft) + ' short of ' + rs(v.total) + '.' : 'Paid amounts are ' + rs(-v.payLeft) + ' over ' + rs(v.total) + '.');
+  if (!v.ids.length) return waiting('Tick at least one person who shared this.');
   if (!v.shares){
-    if (d0.mode === 'pct') return waiting(v.splitLeft > 0 ? 'Percentages add up to ' + +(100 - v.splitLeft).toFixed(2) + '% · give out ' + +v.splitLeft.toFixed(2) + '% more' : 'Percentages add up to ' + +(100 - v.splitLeft).toFixed(2) + '% · take off ' + +(-v.splitLeft).toFixed(2) + '%');
-    return waiting(v.splitLeft > 0 ? rs(v.total - v.splitLeft) + ' of ' + rs(v.total) + ' given out · ' + rs(v.splitLeft) + ' left to assign' : rs(-v.splitLeft) + ' too much · shares must add up to ' + rs(v.total));
+    if (d0.mode === 'pct') return waiting(v.splitLeft > 0 ? 'Percentages add up to ' + +(100 - v.splitLeft).toFixed(2) + '%. Give out ' + +v.splitLeft.toFixed(2) + '% more to reach 100%.' : 'Percentages add up to ' + +(100 - v.splitLeft).toFixed(2) + '%. Take off ' + +(-v.splitLeft).toFixed(2) + '% to reach 100%.');
+    return waiting(v.splitLeft > 0 ? rs(v.total - v.splitLeft) + ' of ' + rs(v.total) + ' is given out. ' + rs(v.splitLeft) + ' left to assign.' : rs(-v.splitLeft) + ' too much. The shares must add up to ' + rs(v.total) + '.');
   }
-  var out = '', ids = activePeople(gid), owe = [], get = [];
+  var ids = activePeople(gid), owe = [], get = [];
   ids.forEach(function(m){ var net = (v.payers[m] || 0) - (v.shares[m] || 0); if (net < 0) owe.push([m, -net]); else if (net > 0) get.push([m, net]); });
-  out += pill('', joinNames(v.payIds.map(nm)) + ' paid ' + rs(v.total));
+  var line1 = joinNames(v.payIds.map(nm)) + ' paid ' + rs(v.total) + '.';
   var sv = v.ids.map(function(m){ return v.shares[m]; }), same = sv.every(function(x){ return x === sv[0]; });
-  if (d0.mode === 'equal' && same) out += pill('', 'Each share ' + rs(sv[0]));
-  else v.ids.forEach(function(m){ out += pill('', nm(m) + ' ' + (d0.mode === 'pct' ? (parseFloat(d0.pct[m]) || 0) + '% · ' : '') + rs(v.shares[m])); });
-  if (!owe.length) out += pill('owed', 'Nobody owes anything', 'check');
-  else {
-    if (get.length === 1) owe.forEach(function(x){ out += pill('owe', nm(x[0]) + (nm(x[0]) === 'You' ? ' owe ' : ' owes ') + nm(get[0][0]) + ' ' + rs(x[1])); });
-    else owe.forEach(function(x){ out += pill('owe', nm(x[0]) + (nm(x[0]) === 'You' ? ' owe ' : ' owes ') + rs(x[1])); });
-    get.forEach(function(x){ out += pill('owed', nm(x[0]) + (nm(x[0]) === 'You' ? ' get back ' : ' gets back ') + rs(x[1])); });
-  }
-  return wrap(out);
+  var line2 = d0.mode === 'equal' && same ? ' Each share is ' + rs(sv[0]) + '.' : ' Shares: ' + v.ids.map(function(m){ return nm(m) + ' ' + (d0.mode === 'pct' ? (parseFloat(d0.pct[m]) || 0) + '% = ' : '') + rs(v.shares[m]); }).join(', ') + '.';
+  var line3;
+  if (!owe.length) line3 = ' Nobody owes anything.';
+  else if (get.length === 1){
+    var gn = nm(get[0][0]), eq = owe.every(function(x){ return x[1] === owe[0][1]; });
+    line3 = owe.length === 1 ? ' ' + nm(owe[0][0]) + (nm(owe[0][0]) === 'You' ? ' owe ' : ' owes ') + gn + ' ' + rs(owe[0][1]) + '.'
+      : eq ? ' ' + joinNames(owe.map(function(x){ return nm(x[0]); })) + ' each owe ' + gn + ' ' + rs(owe[0][1]) + '.'
+      : ' ' + joinNames(owe.map(function(x){ return nm(x[0]) + ' ' + rs(x[1]); })) + ' owe ' + gn + '.';
+  } else line3 = ' Owing: ' + joinNames(owe.map(function(x){ return nm(x[0]) + ' ' + rs(x[1]); })) + ' (to ' + joinNames(get.map(function(x){ return nm(x[0]); })) + ').';
+  return box(line1 + line2 + line3, 'ok');
 }
 function statusLine(ok, text){ return '<div class="status ' + (ok ? 'ok' : 'bad') + '">' + ic(ok ? 'check' : 'alert') + '<span class="num">' + text + '</span></div>'; }
 function refresh(){

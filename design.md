@@ -151,7 +151,7 @@ Rules:
 
 ### Pills and status
 - Neutral, ink, owed, owe, wait, glass pills: 30 high, 13px bold.
-- The add-expense “What happens” summary is a row of pills. Amber `wait` pill while the form is incomplete (what is missing); once it adds up: neutral pills for facts, `owe` pills for who owes, `owed` pills for who gets back. Pills may wrap to two lines there.
+- The add-expense “What happens” summary is one short paragraph in a rounded box. The box colour is the status: `wait` (amber) while the form is incomplete and says what is missing, `owed` (green) once it adds up.
 - **Form status line:** full-width rounded 14, green "Adds up to Rs 10,000" or red "Rs 2,000 left to assign" with an icon. Save buttons stay disabled until the status is green.
 
 ### Avatars (capybara heads)
