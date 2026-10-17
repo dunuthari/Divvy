@@ -595,7 +595,7 @@ function summaryHtml(v){
       : eq ? ' ' + joinNames(owe.map(function(x){ return nm(x[0]); })) + ' each owe ' + gn + ' ' + rs(owe[0][1]) + '.'
       : ' ' + joinNames(owe.map(function(x){ return nm(x[0]) + ' ' + rs(x[1]); })) + ' owe ' + gn + '.';
   } else line3 = ' Owing: ' + joinNames(owe.map(function(x){ return nm(x[0]) + ' ' + rs(x[1]); })) + ' (to ' + joinNames(get.map(function(x){ return nm(x[0]); })) + ').';
-  return box(line1 + line2 + line3, 'ok');
+  return box(line1 + line2 + line3, owe.length ? 'wait' : 'ok');
 }
 function statusLine(ok, text){ return '<div class="status ' + (ok ? 'ok' : 'bad') + '">' + ic(ok ? 'check' : 'alert') + '<span class="num">' + text + '</span></div>'; }
 function refresh(){
