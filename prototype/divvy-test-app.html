@@ -542,7 +542,7 @@ function addScreen(){
     '<div id="splitStatus"></div><div id="summary"></div><div class="small muted" id="eqNote" style="margin:8px 2px 0"></div></div>' +
     '<div class="bottombar"><div class="hint" id="saveHint"></div><button class="btn block" id="saveBtn" data-a="save" disabled>' + (d.editId ? 'Save changes' : 'Save expense') + '</button></div>';
 }
-function modeSeg(){ return [['equal','Equally'],['pct','By %'],['exact','By amount']].map(function(x){ return '<button role="radio" aria-checked="' + (S.draft.mode === x[0]) + '" data-a="mode" data-m="' + x[0] + '">' + x[1] + '</button>'; }).join(''); }
+function modeSeg(){ return [['equal','Equally'],['exact','By amount'],['pct','By %']].map(function(x){ return '<button role="radio" aria-checked="' + (S.draft.mode === x[0]) + '" data-a="mode" data-m="' + x[0] + '">' + x[1] + '</button>'; }).join(''); }
 function payBlock(){
   var d = S.draft, gid = S.gid, ids = activePeople(gid);
   if (!d.multi){
